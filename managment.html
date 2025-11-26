@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Enzyme API Client</title>
+  <title>Enzyme API Control Center</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -32,7 +32,7 @@
       background: #0b1222;
       position: sticky;
       top: 0;
-      z-index: 2;
+      z-index: 3;
     }
 
     h1 {
@@ -40,14 +40,54 @@
       font-size: 24px;
     }
 
-    main {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 16px;
-      padding: 16px;
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 4px 0 12px;
     }
 
-    section {
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .nav button {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1220;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .nav button.active {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      border-color: transparent;
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1400px;
+      margin: 0 auto 40px;
+    }
+
+    .page {
+      display: none;
+      gap: 16px;
+    }
+
+    .page.active {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      align-items: start;
+    }
+
+    section, .landing-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -62,12 +102,6 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 12px;
-      margin: 0 0 12px;
     }
 
     label {
@@ -115,38 +149,7 @@
       background: linear-gradient(135deg, #ef4444, #dc2626);
     }
 
-    .grid-two {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .token-box {
-      background: #0c1220;
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 12px;
-      word-break: break-all;
-      color: var(--muted);
-    }
-
-    .log {
-      background: #0c1220;
-      border: 1px solid var(--border);
-      min-height: 120px;
-      border-radius: 10px;
-      padding: 10px;
-      font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      overflow: auto;
-      white-space: pre-wrap;
-    }
-
     .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid var(--border);
@@ -165,23 +168,87 @@
 
     .row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 8px;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
     }
 
     .stacked button {
       width: 100%;
+    }
+
+    .log {
+      background: #0c1220;
+      border: 1px solid var(--border);
+      min-height: 120px;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 12px;
+      color: var(--accent);
+    }
+
+    .token-box {
+      border: 1px dashed var(--border);
+      background: #0c1220;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 48px;
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    .landing-hero {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .landing-card h3 {
+      margin-top: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #0c1220;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .tips {
+      list-style: disc;
+      padding-left: 18px;
+      color: var(--muted);
+      margin: 8px 0 0;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>Enzyme API Control Center</h1>
-    <p class="subtitle">Interact with every endpoint from a single, token-aware UI.</p>
+    <p class="subtitle">Landing + dedicated pages for every endpoint group. Update base URL, handle tokens, and avoid CORS surprises.</p>
     <div class="row">
       <div>
         <label for="baseUrl">API Base URL</label>
         <input id="baseUrl" type="text" placeholder="https://localhost:5001" value="https://localhost:5001" />
+      </div>
+      <div>
+        <label for="proxyUrl">(Optional) CORS proxy prefix</label>
+        <input id="proxyUrl" type="text" placeholder="https://your-proxy.example.com" />
+        <p class="subtitle">Leave empty when hosting this UI on the same origin to prevent cross-origin errors.</p>
       </div>
       <div>
         <label>Access Token</label>
@@ -192,411 +259,473 @@
         <div class="token-box" id="refreshTokenBox">Not set</div>
       </div>
     </div>
+    <nav class="nav">
+      <button class="active" data-target="landing">Landing</button>
+      <button data-target="auth">Authentication</button>
+      <button data-target="projects">Projects</button>
+      <button data-target="boards">Boards</button>
+      <button data-target="sections">Sections</button>
+      <button data-target="tasks">Tasks</button>
+      <button data-target="contributors">Contributors</button>
+      <button data-target="misc">Health</button>
+    </nav>
   </header>
 
   <main>
-    <section id="auth">
-      <h2>Authentication <span class="pill">Register • Login • Refresh</span></h2>
-      <p class="subtitle">Use these forms to manage credentials and tokens. Tokens are automatically attached to subsequent requests.</p>
-      <div class="grid-two">
-        <form id="registerForm">
-          <h3>Register User</h3>
-          <label>Username</label>
-          <input name="userName" maxlength="20" required />
-          <label>Email</label>
-          <input name="email" type="email" required />
-          <label>Password</label>
-          <input name="password" type="password" required />
-          <button type="submit">Register</button>
-        </form>
-
-        <form id="registerAdminForm">
-          <h3>Register Admin</h3>
-          <label>Username</label>
-          <input name="userName" maxlength="20" required />
-          <label>Email</label>
-          <input name="email" type="email" required />
-          <label>Password</label>
-          <input name="password" type="password" required />
-          <button type="submit">Register Admin</button>
-        </form>
-
-        <form id="loginForm">
-          <h3>Login</h3>
-          <label>Username or Email</label>
-          <input name="userNameOrEmail" required />
-          <label>Password</label>
-          <input name="password" type="password" required />
-          <button type="submit">Login</button>
-        </form>
-
-        <form id="refreshForm">
-          <h3>Refresh Token</h3>
-          <label>Access Token (current)</label>
-          <textarea name="accessToken" rows="3" placeholder="Will default to current" ></textarea>
-          <label>Refresh Token</label>
-          <textarea name="refreshToken" rows="3" placeholder="Will default to current" ></textarea>
-          <button type="submit">Refresh</button>
-        </form>
+    <div class="page active" data-page="landing">
+      <div class="landing-hero">
+        <div class="landing-card">
+          <h3>Welcome</h3>
+          <p class="subtitle">Use the navigation above to jump into a focused workspace for each API area. Tokens are shared across pages.</p>
+          <div class="badge">Auth</div><div class="badge">Projects</div><div class="badge">Boards</div><div class="badge">Sections</div><div class="badge">Tasks</div><div class="badge">Contributors</div>
+          <ul class="tips">
+            <li>Host this HTML on the same origin as the API to avoid CORS blocks.</li>
+            <li>If you must cross origins, supply a proxy prefix (e.g., your own CORS reverse proxy).</li>
+            <li>Start with the Authentication page to obtain tokens, then proceed to data operations.</li>
+          </ul>
+        </div>
+        <div class="landing-card">
+          <h3>Quick Start</h3>
+          <ol class="tips">
+            <li>Set <strong>API Base URL</strong> and optional proxy.</li>
+            <li>Register/Login on <strong>Authentication</strong> page. Tokens appear in the header.</li>
+            <li>Use other pages to manage projects, boards, sections, tasks, and contributors.</li>
+            <li>Check <strong>Health</strong> for the WhoAreYou endpoint and CORS validation.</li>
+          </ol>
+        </div>
+        <div class="landing-card">
+          <h3>Cross-Origin Help</h3>
+          <p class="subtitle">If register/login fails due to CORS:</p>
+          <ul class="tips">
+            <li>Serve this file from the API host (same domain + port).</li>
+            <li>Use HTTPS when the API requires it, and ensure matching schemes.</li>
+            <li>Provide a proxy prefix above if you control a CORS-allowing reverse proxy.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" data-target="auth">Go to Authentication</button>
+            <button type="button" data-target="misc">Run WhoAreYou</button>
+          </div>
+        </div>
       </div>
-      <div class="log" id="authLog"></div>
-    </section>
+    </div>
 
-    <section id="projects">
-      <h2>Projects <span class="pill">CRUD + Lookup</span></h2>
-      <p class="subtitle">Create, update, delete, or fetch projects. Include optional boards/contributors payloads when creating.</p>
-      <div class="grid-two">
-        <form id="projectCreateForm">
-          <h3>Create Project</h3>
-          <label>Name</label>
-          <input name="name" maxlength="25" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="200"></textarea>
-          <label>Color Theme ID</label>
-          <input name="colorThemeId" type="number" />
-          <label>Boards (JSON)</label>
-          <textarea name="boards" placeholder='[{"name":"Board 1","description":"Sample"}]'></textarea>
-          <label>Contributors (JSON)</label>
-          <textarea name="contributors" placeholder='[{"hasWritePermission":true}]'></textarea>
-          <button type="submit">Create</button>
+    <div class="page" data-page="auth">
+      <section id="authSection">
+        <h2>Authentication <span class="pill">Register • Login • Refresh</span></h2>
+        <p class="subtitle">Use these forms to manage credentials and tokens. Tokens are automatically attached to subsequent requests.</p>
+        <div class="grid-two">
+          <form id="registerForm">
+            <h3>Register User</h3>
+            <label>Username</label>
+            <input name="userName" maxlength="20" required />
+            <label>Email</label>
+            <input name="email" type="email" required />
+            <label>Password</label>
+            <input name="password" type="password" required />
+            <button type="submit">Register</button>
+          </form>
+
+          <form id="registerAdminForm">
+            <h3>Register Admin</h3>
+            <label>Username</label>
+            <input name="userName" maxlength="20" required />
+            <label>Email</label>
+            <input name="email" type="email" required />
+            <label>Password</label>
+            <input name="password" type="password" required />
+            <button type="submit">Register Admin</button>
+          </form>
+
+          <form id="loginForm">
+            <h3>Login</h3>
+            <label>Username or Email</label>
+            <input name="userNameOrEmail" required />
+            <label>Password</label>
+            <input name="password" type="password" required />
+            <button type="submit">Login</button>
+          </form>
+
+          <form id="refreshForm">
+            <h3>Refresh Token</h3>
+            <label>Access Token (current)</label>
+            <textarea name="accessToken" rows="3" placeholder="Will default to current"></textarea>
+            <label>Refresh Token</label>
+            <textarea name="refreshToken" rows="3" placeholder="Will default to current"></textarea>
+            <button type="submit">Refresh</button>
+          </form>
+        </div>
+        <div class="log" id="authLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="projects">
+      <section id="projectsSection">
+        <h2>Projects <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Create, update, delete, or fetch projects. Include optional boards/contributors payloads when creating.</p>
+        <div class="grid-two">
+          <form id="projectCreateForm">
+            <h3>Create Project</h3>
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="200"></textarea>
+            <label>Color Theme ID</label>
+            <input name="colorThemeId" type="number" />
+            <label>Boards (JSON)</label>
+            <textarea name="boards" placeholder='[{"name":"Board 1","description":"Sample"}]'></textarea>
+            <label>Contributors (JSON)</label>
+            <textarea name="contributors" placeholder='[{"hasWritePermission":true}]'></textarea>
+            <button type="submit">Create Project</button>
+          </form>
+
+          <form id="projectUpdateForm">
+            <h3>Update Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="200"></textarea>
+            <label>Color Theme ID</label>
+            <input name="colorThemeId" type="number" />
+            <button type="submit">Update Project</button>
+          </form>
+
+          <form id="projectDeleteForm">
+            <h3>Delete Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit" class="danger">Delete Project</button>
+          </form>
+
+          <form id="projectByIdForm">
+            <h3>Get Project by ID</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <button type="submit">Fetch Project</button>
+          </form>
+
+          <form id="projectByUserForm" class="stacked">
+            <h3>Get Projects by User</h3>
+            <button type="submit">Fetch My Projects</button>
+          </form>
+        </div>
+        <div class="log" id="projectLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="boards">
+      <section id="boardsSection">
+        <h2>Boards <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Manage boards within a project. Supply sections payload when creating if desired.</p>
+        <div class="grid-two">
+          <form id="boardListForm">
+            <h3>Boards by Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Boards</button>
+          </form>
+
+          <form id="boardByIdForm">
+            <h3>Get Board by ID</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Board</button>
+          </form>
+
+          <form id="boardCreateForm">
+            <h3>Create Board</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Sections (JSON)</label>
+            <textarea name="sections" placeholder='[{"name":"To Do","order":1}]'></textarea>
+            <button type="submit">Create Board</button>
+          </form>
+
+          <form id="boardUpdateForm">
+            <h3>Update Board</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <button type="submit">Update Board</button>
+          </form>
+
+          <form id="boardDeleteForm" class="stacked">
+            <h3>Delete Board</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <button type="submit" class="danger">Delete Board</button>
+          </form>
+        </div>
+        <div class="log" id="boardLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="sections">
+      <section id="sectionsSection">
+        <h2>Sections <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Create, update, delete, or fetch sections inside a board.</p>
+        <div class="grid-two">
+          <form id="sectionListForm">
+            <h3>Sections by Board</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <button type="submit">Fetch Sections</button>
+          </form>
+
+          <form id="sectionByIdForm">
+            <h3>Get Section by ID</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <button type="submit">Fetch Section</button>
+          </form>
+
+          <form id="sectionCreateForm">
+            <h3>Create Section</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <label>Name</label>
+            <input name="name" maxlength="20" required />
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Tasks (JSON)</label>
+            <textarea name="tasks" placeholder='[{"name":"Task","order":1,"isCompleted":false,"createdDateTime":"2024-01-01T00:00:00Z"}]'></textarea>
+            <button type="submit">Create Section</button>
+          </form>
+
+          <form id="sectionUpdateForm">
+            <h3>Update Section</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Name</label>
+            <input name="name" maxlength="20" required />
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <button type="submit">Update Section</button>
+          </form>
+
+          <form id="sectionDeleteForm" class="stacked">
+            <h3>Delete Section</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <button type="submit" class="danger">Delete Section</button>
+          </form>
+        </div>
+        <div class="log" id="sectionLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="tasks">
+      <section id="tasksSection">
+        <h2>Tasks <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Manage tasks and subtasks within a section.</p>
+        <div class="grid-two">
+          <form id="taskListForm">
+            <h3>Tasks by Section</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <button type="submit">Fetch Tasks</button>
+          </form>
+
+          <form id="taskByIdForm">
+            <h3>Get Task by ID</h3>
+            <label>Task ID (UUID)</label>
+            <input name="taskId" required />
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <button type="submit">Fetch Task</button>
+          </form>
+
+          <form id="taskCreateForm">
+            <h3>Create Task</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Name</label>
+            <input name="name" maxlength="40" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Is Completed</label>
+            <select name="isCompleted">
+              <option value="false">False</option>
+              <option value="true">True</option>
+            </select>
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Created DateTime</label>
+            <input name="createdDateTime" type="datetime-local" required />
+            <label>Due DateTime</label>
+            <input name="dueDateTime" type="datetime-local" />
+            <label>Priority (0=Low,1=Medium,2=High)</label>
+            <input name="priority" type="number" min="0" max="2" />
+            <label>SubTasks (JSON)</label>
+            <textarea name="subTasks" placeholder='[{"name":"Child","order":1,"isCompleted":false,"createdDateTime":"2024-01-01T00:00:00Z"}]'></textarea>
+            <button type="submit">Create Task</button>
+          </form>
+
+          <form id="taskCreateChildForm">
+            <h3>Create Subtask</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Parent Task ID (UUID)</label>
+            <input name="parentTaskId" required />
+            <label>Name</label>
+            <input name="name" maxlength="40" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Is Completed</label>
+            <select name="isCompleted">
+              <option value="false">False</option>
+              <option value="true">True</option>
+            </select>
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Created DateTime</label>
+            <input name="createdDateTime" type="datetime-local" required />
+            <label>Due DateTime</label>
+            <input name="dueDateTime" type="datetime-local" />
+            <label>Priority (0=Low,1=Medium,2=High)</label>
+            <input name="priority" type="number" min="0" max="2" />
+            <button type="submit">Create Subtask</button>
+          </form>
+
+          <form id="taskUpdateForm">
+            <h3>Update Task</h3>
+            <label>Task ID (UUID)</label>
+            <input name="taskId" required />
+            <label>Name</label>
+            <input name="name" maxlength="40" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Is Completed</label>
+            <select name="isCompleted">
+              <option value="false">False</option>
+              <option value="true">True</option>
+            </select>
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Created DateTime</label>
+            <input name="createdDateTime" type="datetime-local" required />
+            <label>Due DateTime</label>
+            <input name="dueDateTime" type="datetime-local" />
+            <label>Priority (0=Low,1=Medium,2=High)</label>
+            <input name="priority" type="number" min="0" max="2" />
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" />
+            <button type="submit">Update Task</button>
+          </form>
+
+          <form id="taskDeleteForm" class="stacked">
+            <h3>Delete Task</h3>
+            <label>Task ID (UUID)</label>
+            <input name="taskId" required />
+            <button type="submit" class="danger">Delete Task</button>
+          </form>
+        </div>
+        <div class="log" id="taskLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="contributors">
+      <section id="contributorsSection">
+        <h2>Contributors <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Manage contributor permissions and lookups by user/project.</p>
+        <div class="grid-two">
+          <form id="contributorsByProjectForm">
+            <h3>Contributors by Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Contributors</button>
+          </form>
+
+          <form id="contributionsByUserForm" class="stacked">
+            <h3>Contributions by Current User</h3>
+            <button type="submit">Fetch My Contributions</button>
+          </form>
+
+          <form id="contributionByUserProjectForm">
+            <h3>Contribution by User + Project</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Contribution</button>
+          </form>
+
+          <form id="contributorCreateForm">
+            <h3>Add Contributor</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Has Write Permission</label>
+            <select name="hasWritePermission">
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+            <button type="submit">Add Contributor</button>
+          </form>
+
+          <form id="contributorUpdateForm">
+            <h3>Update Contributor</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Has Write Permission</label>
+            <select name="hasWritePermission">
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+            <button type="submit">Update Contributor</button>
+          </form>
+
+          <form id="contributorDeleteForm" class="stacked">
+            <h3>Remove Contributor</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit" class="danger">Remove Contributor</button>
+          </form>
+        </div>
+        <div class="log" id="contributorLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="misc">
+      <section id="miscSection">
+        <h2>Health <span class="pill">WhoAreYou</span></h2>
+        <p class="subtitle">Use this check when validating connectivity or CORS configuration.</p>
+        <form id="whoForm" class="stacked">
+          <h3>WhoAreYou</h3>
+          <button type="submit">Ping API</button>
         </form>
-
-        <form id="projectUpdateForm">
-          <h3>Update Project</h3>
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <label>Name</label>
-          <input name="name" maxlength="25" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="200"></textarea>
-          <label>Color Theme ID</label>
-          <input name="colorThemeId" type="number" />
-          <button type="submit">Update</button>
-        </form>
-
-        <form id="projectDeleteForm" class="stacked">
-          <h3>Delete Project</h3>
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <button class="danger" type="submit">Delete</button>
-        </form>
-
-        <form id="projectByIdForm">
-          <h3>Get Project By ID</h3>
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <label>User ID</label>
-          <input name="userId" type="number" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="projectByUserForm" class="stacked">
-          <h3>Get Projects By Current User</h3>
-          <p class="subtitle">Uses your bearer token identity.</p>
-          <button type="submit">Fetch My Projects</button>
-        </form>
-      </div>
-      <div class="log" id="projectLog"></div>
-    </section>
-
-    <section id="boards">
-      <h2>Boards <span class="pill">Per Project</span></h2>
-      <p class="subtitle">Manage boards inside projects.</p>
-      <div class="grid-two">
-        <form id="boardListForm">
-          <h3>Boards By Project</h3>
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="boardByIdForm">
-          <h3>Board By ID</h3>
-          <label>Board ID (UUID)</label>
-          <input name="boardId" required />
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="boardCreateForm">
-          <h3>Create Board</h3>
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <label>Name</label>
-          <input name="name" maxlength="25" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="100"></textarea>
-          <label>Sections (JSON)</label>
-          <textarea name="sections" placeholder='[{"name":"Todo","order":1}]'></textarea>
-          <button type="submit">Create</button>
-        </form>
-
-        <form id="boardUpdateForm">
-          <h3>Update Board</h3>
-          <label>Board ID (UUID)</label>
-          <input name="boardId" required />
-          <label>Name</label>
-          <input name="name" maxlength="25" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="100"></textarea>
-          <button type="submit">Update</button>
-        </form>
-
-        <form id="boardDeleteForm" class="stacked">
-          <h3>Delete Board</h3>
-          <label>Board ID (UUID)</label>
-          <input name="boardId" required />
-          <button class="danger" type="submit">Delete</button>
-        </form>
-      </div>
-      <div class="log" id="boardLog"></div>
-    </section>
-
-    <section id="sections">
-      <h2>Sections <span class="pill">Per Board</span></h2>
-      <div class="grid-two">
-        <form id="sectionListForm">
-          <h3>Sections By Board</h3>
-          <label>Board ID (UUID)</label>
-          <input name="boardId" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="sectionByIdForm">
-          <h3>Section By ID</h3>
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <label>Board ID (UUID)</label>
-          <input name="boardId" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="sectionCreateForm">
-          <h3>Create Section</h3>
-          <label>Board ID (UUID)</label>
-          <input name="boardId" required />
-          <label>Name</label>
-          <input name="name" maxlength="20" required />
-          <label>Order</label>
-          <input name="order" type="number" required />
-          <label>Tasks (JSON)</label>
-          <textarea name="tasks" placeholder='[{"name":"Task 1","order":1,"createdDateTime":"2024-01-01T00:00:00Z","isCompleted":false}]'></textarea>
-          <button type="submit">Create</button>
-        </form>
-
-        <form id="sectionUpdateForm">
-          <h3>Update Section</h3>
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <label>Name</label>
-          <input name="name" maxlength="20" required />
-          <label>Order</label>
-          <input name="order" type="number" required />
-          <button type="submit">Update</button>
-        </form>
-
-        <form id="sectionDeleteForm" class="stacked">
-          <h3>Delete Section</h3>
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <button class="danger" type="submit">Delete</button>
-        </form>
-      </div>
-      <div class="log" id="sectionLog"></div>
-    </section>
-
-    <section id="tasks">
-      <h2>Tasks <span class="pill">Per Section</span></h2>
-      <div class="grid-two">
-        <form id="taskListForm">
-          <h3>Tasks By Section</h3>
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="taskByIdForm">
-          <h3>Task By ID</h3>
-          <label>Task ID (UUID)</label>
-          <input name="taskId" required />
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="taskCreateForm">
-          <h3>Create Task</h3>
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <label>Name</label>
-          <input name="name" maxlength="40" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="100"></textarea>
-          <label>Is Completed</label>
-          <select name="isCompleted">
-            <option value="false">false</option>
-            <option value="true">true</option>
-          </select>
-          <label>Order</label>
-          <input name="order" type="number" required />
-          <label>Created DateTime</label>
-          <input name="createdDateTime" type="datetime-local" required />
-          <label>Due DateTime</label>
-          <input name="dueDateTime" type="datetime-local" />
-          <label>Priority (0=Low,1=Medium,2=High)</label>
-          <input name="priority" type="number" min="0" max="2" />
-          <label>SubTasks (JSON)</label>
-          <textarea name="subTasks" placeholder='[{"name":"Subtask","order":1,"createdDateTime":"2024-01-01T00:00:00Z","isCompleted":false}]'></textarea>
-          <button type="submit">Create</button>
-        </form>
-
-        <form id="taskCreateChildForm">
-          <h3>Create Subtask</h3>
-          <label>Section ID (UUID)</label>
-          <input name="sectionId" required />
-          <label>Parent Task ID (UUID)</label>
-          <input name="parentTaskId" required />
-          <label>Name</label>
-          <input name="name" maxlength="40" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="100"></textarea>
-          <label>Is Completed</label>
-          <select name="isCompleted">
-            <option value="false">false</option>
-            <option value="true">true</option>
-          </select>
-          <label>Order</label>
-          <input name="order" type="number" required />
-          <label>Created DateTime</label>
-          <input name="createdDateTime" type="datetime-local" required />
-          <label>Due DateTime</label>
-          <input name="dueDateTime" type="datetime-local" />
-          <label>Priority (0=Low,1=Medium,2=High)</label>
-          <input name="priority" type="number" min="0" max="2" />
-          <button type="submit">Create</button>
-        </form>
-
-        <form id="taskUpdateForm">
-          <h3>Update Task</h3>
-          <label>Task ID (UUID)</label>
-          <input name="taskId" required />
-          <label>Name</label>
-          <input name="name" maxlength="40" required />
-          <label>Description</label>
-          <textarea name="description" maxlength="100"></textarea>
-          <label>Is Completed</label>
-          <select name="isCompleted">
-            <option value="false">false</option>
-            <option value="true">true</option>
-          </select>
-          <label>Order</label>
-          <input name="order" type="number" required />
-          <label>Created DateTime</label>
-          <input name="createdDateTime" type="datetime-local" required />
-          <label>Due DateTime</label>
-          <input name="dueDateTime" type="datetime-local" />
-          <label>Priority</label>
-          <input name="priority" type="number" min="0" max="2" />
-          <label>Section ID (for move)</label>
-          <input name="sectionId" />
-          <button type="submit">Update</button>
-        </form>
-
-        <form id="taskDeleteForm" class="stacked">
-          <h3>Delete Task</h3>
-          <label>Task ID (UUID)</label>
-          <input name="taskId" required />
-          <button class="danger" type="submit">Delete</button>
-        </form>
-      </div>
-      <div class="log" id="taskLog"></div>
-    </section>
-
-    <section id="contributors">
-      <h2>Contributors <span class="pill">Per Project</span></h2>
-      <div class="grid-two">
-        <form id="contributorsByProjectForm">
-          <h3>Contributors By Project</h3>
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="contributionsByUserForm" class="stacked">
-          <h3>My Contributions</h3>
-          <p class="subtitle">Uses token identity.</p>
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="contributionByUserProjectForm">
-          <h3>User Contribution</h3>
-          <label>User ID</label>
-          <input name="userId" type="number" required />
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <button type="submit">Fetch</button>
-        </form>
-
-        <form id="contributorCreateForm">
-          <h3>Add Contributor</h3>
-          <label>User ID</label>
-          <input name="userId" type="number" required />
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <label>Has Write Permission</label>
-          <select name="hasWritePermission">
-            <option value="true">true</option>
-            <option value="false">false</option>
-          </select>
-          <button type="submit">Add</button>
-        </form>
-
-        <form id="contributorUpdateForm">
-          <h3>Update Contributor</h3>
-          <label>User ID</label>
-          <input name="userId" type="number" required />
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <label>Has Write Permission</label>
-          <select name="hasWritePermission">
-            <option value="true">true</option>
-            <option value="false">false</option>
-          </select>
-          <button type="submit">Update</button>
-        </form>
-
-        <form id="contributorDeleteForm" class="stacked">
-          <h3>Remove Contributor</h3>
-          <label>User ID</label>
-          <input name="userId" type="number" required />
-          <label>Project ID</label>
-          <input name="projectId" type="number" required />
-          <button class="danger" type="submit">Delete</button>
-        </form>
-      </div>
-      <div class="log" id="contributorLog"></div>
-    </section>
-
-    <section id="misc">
-      <h2>Misc <span class="pill">Health</span></h2>
-      <form id="whoForm">
-        <h3>Who Are You?</h3>
-        <p class="subtitle">Simple health/identity check.</p>
-        <button type="submit">Ping</button>
-      </form>
-      <div class="log" id="miscLog"></div>
-    </section>
+        <div class="log" id="miscLog"></div>
+      </section>
+    </div>
   </main>
 
   <script>
+    const state = {
+      accessToken: '',
+      refreshToken: '',
+    };
+
     const accessBox = document.getElementById('accessTokenBox');
     const refreshBox = document.getElementById('refreshTokenBox');
-
-    const state = {
-      accessToken: null,
-      refreshToken: null,
-    };
 
     const loggers = {
       auth: document.getElementById('authLog'),
@@ -626,7 +755,8 @@
 
     async function apiRequest(method, path, body) {
       const base = document.getElementById('baseUrl').value.replace(/\/$/, '');
-      const url = `${base}${path}`;
+      const proxy = document.getElementById('proxyUrl').value.trim().replace(/\/$/, '');
+      const url = `${proxy}${base}${path}`;
       const headers = {
         'Content-Type': 'application/json',
       };
@@ -634,7 +764,7 @@
         headers['Authorization'] = `Bearer ${state.accessToken}`;
       }
 
-      const options = { method, headers };
+      const options = { method, headers, mode: 'cors' };
       if (body !== undefined && body !== null) {
         options.body = JSON.stringify(body);
       }
@@ -677,6 +807,18 @@
         return undefined;
       }
     }
+
+    const pages = Array.from(document.querySelectorAll('.page'));
+    const navButtons = Array.from(document.querySelectorAll('[data-target]'));
+
+    function showPage(page) {
+      pages.forEach((p) => p.classList.toggle('active', p.dataset.page === page));
+      navButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.target === page));
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener('click', () => showPage(btn.dataset.target));
+    });
 
     // Authentication
     handleForm('registerForm', 'auth', ({ userName, email, password }) => {
