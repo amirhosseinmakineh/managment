@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enzyme API Control Center</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #38bdf8;
+      --border: #1f2937;
+      --danger: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      background: #0b1222;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 4px 0 12px;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .nav button {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1220;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .nav button.active {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      border-color: transparent;
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1400px;
+      margin: 0 auto 40px;
+    }
+
+    .page {
+      display: none;
+      gap: 16px;
+    }
+
+    .page.active {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      align-items: start;
+    }
+
+    section, .landing-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 4px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.2px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0c1220;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35);
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #0c1220;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    .stacked button {
+      width: 100%;
+    }
+
+    .log {
+      background: #0c1220;
+      border: 1px solid var(--border);
+      min-height: 120px;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin-top: 12px;
+      color: var(--accent);
+    }
+
+    .token-box {
+      border: 1px dashed var(--border);
+      background: #0c1220;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 48px;
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+
+    .landing-hero {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .landing-card h3 {
+      margin-top: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #0c1220;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .tips {
+      list-style: disc;
+      padding-left: 18px;
+      color: var(--muted);
+      margin: 8px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Enzyme API Control Center</h1>
+    <p class="subtitle">Landing + dedicated pages for every endpoint group. Update base URL, handle tokens, and avoid CORS surprises.</p>
+    <div class="row">
+      <div>
+        <label for="baseUrl">API Base URL</label>
+        <input id="baseUrl" type="text" placeholder="http://192.168.0.106:5555" value="http://192.168.0.106:5555" />
+      </div>
+      <div>
+        <label for="proxyUrl">(Optional) CORS proxy prefix</label>
+        <input id="proxyUrl" type="text" placeholder="https://your-proxy.example.com" />
+        <p class="subtitle">Leave empty when hosting this UI on the same origin to prevent cross-origin errors.</p>
+      </div>
+      <div>
+        <label>Access Token</label>
+        <div class="token-box" id="accessTokenBox">Not set</div>
+      </div>
+      <div>
+        <label>Refresh Token</label>
+        <div class="token-box" id="refreshTokenBox">Not set</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="active" data-target="landing">Landing</button>
+      <button data-target="auth">Authentication</button>
+      <button data-target="projects">Projects</button>
+      <button data-target="boards">Boards</button>
+      <button data-target="sections">Sections</button>
+      <button data-target="tasks">Tasks</button>
+      <button data-target="contributors">Contributors</button>
+      <button data-target="misc">Health</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="page active" data-page="landing">
+      <div class="landing-hero">
+        <div class="landing-card">
+          <h3>Welcome</h3>
+          <p class="subtitle">Use the navigation above to jump into a focused workspace for each API area. Tokens are shared across pages.</p>
+          <div class="badge">Auth</div><div class="badge">Projects</div><div class="badge">Boards</div><div class="badge">Sections</div><div class="badge">Tasks</div><div class="badge">Contributors</div>
+          <ul class="tips">
+            <li>Host this HTML on the same origin as the API to avoid CORS blocks.</li>
+            <li>If you must cross origins, supply a proxy prefix (e.g., your own CORS reverse proxy).</li>
+            <li>Start with the Authentication page to obtain tokens, then proceed to data operations.</li>
+          </ul>
+        </div>
+        <div class="landing-card">
+          <h3>Quick Start</h3>
+          <ol class="tips">
+            <li>Set <strong>API Base URL</strong> and optional proxy.</li>
+            <li>Register/Login on <strong>Authentication</strong> page. Tokens appear in the header.</li>
+            <li>Use other pages to manage projects, boards, sections, tasks, and contributors.</li>
+            <li>Check <strong>Health</strong> for the WhoAreYou endpoint and CORS validation.</li>
+          </ol>
+        </div>
+        <div class="landing-card">
+          <h3>Cross-Origin Help</h3>
+          <p class="subtitle">If register/login fails due to CORS:</p>
+          <ul class="tips">
+            <li>Serve this file from the API host (same domain + port).</li>
+            <li>Use HTTPS when the API requires it, and ensure matching schemes.</li>
+            <li>Provide a proxy prefix above if you control a CORS-allowing reverse proxy.</li>
+          </ul>
+          <div class="card-actions">
+            <button type="button" data-target="auth">Go to Authentication</button>
+            <button type="button" data-target="misc">Run WhoAreYou</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" data-page="auth">
+      <section id="authSection">
+        <h2>Authentication <span class="pill">Register • Login • Refresh</span></h2>
+        <p class="subtitle">Use these forms to manage credentials and tokens. Tokens are automatically attached to subsequent requests.</p>
+        <div class="grid-two">
+          <form id="registerForm">
+            <h3>Register User</h3>
+            <label>Username</label>
+            <input name="userName" maxlength="20" required />
+            <label>Email</label>
+            <input name="email" type="email" required />
+            <label>Password</label>
+            <input name="password" type="password" required />
+            <button type="submit">Register</button>
+          </form>
+
+          <form id="registerAdminForm">
+            <h3>Register Admin</h3>
+            <label>Username</label>
+            <input name="userName" maxlength="20" required />
+            <label>Email</label>
+            <input name="email" type="email" required />
+            <label>Password</label>
+            <input name="password" type="password" required />
+            <button type="submit">Register Admin</button>
+          </form>
+
+          <form id="loginForm">
+            <h3>Login</h3>
+            <label>Username or Email</label>
+            <input name="userNameOrEmail" required />
+            <label>Password</label>
+            <input name="password" type="password" required />
+            <button type="submit">Login</button>
+          </form>
+
+          <form id="refreshForm">
+            <h3>Refresh Token</h3>
+            <label>Access Token (current)</label>
+            <textarea name="accessToken" rows="3" placeholder="Will default to current"></textarea>
+            <label>Refresh Token</label>
+            <textarea name="refreshToken" rows="3" placeholder="Will default to current"></textarea>
+            <button type="submit">Refresh</button>
+          </form>
+        </div>
+        <div class="log" id="authLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="projects">
+      <section id="projectsSection">
+        <h2>Projects <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Create, update, delete, or fetch projects. Include optional boards/contributors payloads when creating.</p>
+        <div class="grid-two">
+          <form id="projectCreateForm">
+            <h3>Create Project</h3>
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="200"></textarea>
+            <label>Color Theme ID</label>
+            <input name="colorThemeId" type="number" />
+            <label>Boards (JSON)</label>
+            <textarea name="boards" placeholder='[{"name":"Board 1","description":"Sample"}]'></textarea>
+            <label>Contributors (JSON)</label>
+            <textarea name="contributors" placeholder='[{"hasWritePermission":true}]'></textarea>
+            <button type="submit">Create Project</button>
+          </form>
+
+          <form id="projectUpdateForm">
+            <h3>Update Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="200"></textarea>
+            <label>Color Theme ID</label>
+            <input name="colorThemeId" type="number" />
+            <button type="submit">Update Project</button>
+          </form>
+
+          <form id="projectDeleteForm">
+            <h3>Delete Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit" class="danger">Delete Project</button>
+          </form>
+
+          <form id="projectByIdForm">
+            <h3>Get Project by ID</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <button type="submit">Fetch Project</button>
+          </form>
+
+          <form id="projectByUserForm" class="stacked">
+            <h3>Get Projects by User</h3>
+            <button type="submit">Fetch My Projects</button>
+          </form>
+        </div>
+        <div class="log" id="projectLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="boards">
+      <section id="boardsSection">
+        <h2>Boards <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Manage boards within a project. Supply sections payload when creating if desired.</p>
+        <div class="grid-two">
+          <form id="boardListForm">
+            <h3>Boards by Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Boards</button>
+          </form>
+
+          <form id="boardByIdForm">
+            <h3>Get Board by ID</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Board</button>
+          </form>
+
+          <form id="boardCreateForm">
+            <h3>Create Board</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Sections (JSON)</label>
+            <textarea name="sections" placeholder='[{"name":"To Do","order":1}]'></textarea>
+            <button type="submit">Create Board</button>
+          </form>
+
+          <form id="boardUpdateForm">
+            <h3>Update Board</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <label>Name</label>
+            <input name="name" maxlength="25" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <button type="submit">Update Board</button>
+          </form>
+
+          <form id="boardDeleteForm" class="stacked">
+            <h3>Delete Board</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <button type="submit" class="danger">Delete Board</button>
+          </form>
+        </div>
+        <div class="log" id="boardLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="sections">
+      <section id="sectionsSection">
+        <h2>Sections <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Create, update, delete, or fetch sections inside a board.</p>
+        <div class="grid-two">
+          <form id="sectionListForm">
+            <h3>Sections by Board</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <button type="submit">Fetch Sections</button>
+          </form>
+
+          <form id="sectionByIdForm">
+            <h3>Get Section by ID</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <button type="submit">Fetch Section</button>
+          </form>
+
+          <form id="sectionCreateForm">
+            <h3>Create Section</h3>
+            <label>Board ID (UUID)</label>
+            <input name="boardId" required />
+            <label>Name</label>
+            <input name="name" maxlength="20" required />
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Tasks (JSON)</label>
+            <textarea name="tasks" placeholder='[{"name":"Task","order":1,"isCompleted":false,"createdDateTime":"2024-01-01T00:00:00Z"}]'></textarea>
+            <button type="submit">Create Section</button>
+          </form>
+
+          <form id="sectionUpdateForm">
+            <h3>Update Section</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Name</label>
+            <input name="name" maxlength="20" required />
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <button type="submit">Update Section</button>
+          </form>
+
+          <form id="sectionDeleteForm" class="stacked">
+            <h3>Delete Section</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <button type="submit" class="danger">Delete Section</button>
+          </form>
+        </div>
+        <div class="log" id="sectionLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="tasks">
+      <section id="tasksSection">
+        <h2>Tasks <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Manage tasks and subtasks within a section.</p>
+        <div class="grid-two">
+          <form id="taskListForm">
+            <h3>Tasks by Section</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <button type="submit">Fetch Tasks</button>
+          </form>
+
+          <form id="taskByIdForm">
+            <h3>Get Task by ID</h3>
+            <label>Task ID (UUID)</label>
+            <input name="taskId" required />
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <button type="submit">Fetch Task</button>
+          </form>
+
+          <form id="taskCreateForm">
+            <h3>Create Task</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Name</label>
+            <input name="name" maxlength="40" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Is Completed</label>
+            <select name="isCompleted">
+              <option value="false">False</option>
+              <option value="true">True</option>
+            </select>
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Created DateTime</label>
+            <input name="createdDateTime" type="datetime-local" required />
+            <label>Due DateTime</label>
+            <input name="dueDateTime" type="datetime-local" />
+            <label>Priority (0=Low,1=Medium,2=High)</label>
+            <input name="priority" type="number" min="0" max="2" />
+            <label>SubTasks (JSON)</label>
+            <textarea name="subTasks" placeholder='[{"name":"Child","order":1,"isCompleted":false,"createdDateTime":"2024-01-01T00:00:00Z"}]'></textarea>
+            <button type="submit">Create Task</button>
+          </form>
+
+          <form id="taskCreateChildForm">
+            <h3>Create Subtask</h3>
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" required />
+            <label>Parent Task ID (UUID)</label>
+            <input name="parentTaskId" required />
+            <label>Name</label>
+            <input name="name" maxlength="40" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Is Completed</label>
+            <select name="isCompleted">
+              <option value="false">False</option>
+              <option value="true">True</option>
+            </select>
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Created DateTime</label>
+            <input name="createdDateTime" type="datetime-local" required />
+            <label>Due DateTime</label>
+            <input name="dueDateTime" type="datetime-local" />
+            <label>Priority (0=Low,1=Medium,2=High)</label>
+            <input name="priority" type="number" min="0" max="2" />
+            <button type="submit">Create Subtask</button>
+          </form>
+
+          <form id="taskUpdateForm">
+            <h3>Update Task</h3>
+            <label>Task ID (UUID)</label>
+            <input name="taskId" required />
+            <label>Name</label>
+            <input name="name" maxlength="40" required />
+            <label>Description</label>
+            <textarea name="description" maxlength="100"></textarea>
+            <label>Is Completed</label>
+            <select name="isCompleted">
+              <option value="false">False</option>
+              <option value="true">True</option>
+            </select>
+            <label>Order</label>
+            <input name="order" type="number" required />
+            <label>Created DateTime</label>
+            <input name="createdDateTime" type="datetime-local" required />
+            <label>Due DateTime</label>
+            <input name="dueDateTime" type="datetime-local" />
+            <label>Priority (0=Low,1=Medium,2=High)</label>
+            <input name="priority" type="number" min="0" max="2" />
+            <label>Section ID (UUID)</label>
+            <input name="sectionId" />
+            <button type="submit">Update Task</button>
+          </form>
+
+          <form id="taskDeleteForm" class="stacked">
+            <h3>Delete Task</h3>
+            <label>Task ID (UUID)</label>
+            <input name="taskId" required />
+            <button type="submit" class="danger">Delete Task</button>
+          </form>
+        </div>
+        <div class="log" id="taskLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="contributors">
+      <section id="contributorsSection">
+        <h2>Contributors <span class="pill">CRUD + Lookup</span></h2>
+        <p class="subtitle">Manage contributor permissions and lookups by user/project.</p>
+        <div class="grid-two">
+          <form id="contributorsByProjectForm">
+            <h3>Contributors by Project</h3>
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Contributors</button>
+          </form>
+
+          <form id="contributionsByUserForm" class="stacked">
+            <h3>Contributions by Current User</h3>
+            <button type="submit">Fetch My Contributions</button>
+          </form>
+
+          <form id="contributionByUserProjectForm">
+            <h3>Contribution by User + Project</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit">Fetch Contribution</button>
+          </form>
+
+          <form id="contributorCreateForm">
+            <h3>Add Contributor</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Has Write Permission</label>
+            <select name="hasWritePermission">
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+            <button type="submit">Add Contributor</button>
+          </form>
+
+          <form id="contributorUpdateForm">
+            <h3>Update Contributor</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <label>Has Write Permission</label>
+            <select name="hasWritePermission">
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+            <button type="submit">Update Contributor</button>
+          </form>
+
+          <form id="contributorDeleteForm" class="stacked">
+            <h3>Remove Contributor</h3>
+            <label>User ID</label>
+            <input name="userId" type="number" required />
+            <label>Project ID</label>
+            <input name="projectId" type="number" required />
+            <button type="submit" class="danger">Remove Contributor</button>
+          </form>
+        </div>
+        <div class="log" id="contributorLog"></div>
+      </section>
+    </div>
+
+    <div class="page" data-page="misc">
+      <section id="miscSection">
+        <h2>Health <span class="pill">WhoAreYou</span></h2>
+        <p class="subtitle">Use this check when validating connectivity or CORS configuration.</p>
+        <form id="whoForm" class="stacked">
+          <h3>WhoAreYou</h3>
+          <button type="submit">Ping API</button>
+        </form>
+        <div class="log" id="miscLog"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const state = {
+      accessToken: '',
+      refreshToken: '',
+    };
+
+    const accessBox = document.getElementById('accessTokenBox');
+    const refreshBox = document.getElementById('refreshTokenBox');
+
+    const loggers = {
+      auth: document.getElementById('authLog'),
+      project: document.getElementById('projectLog'),
+      board: document.getElementById('boardLog'),
+      section: document.getElementById('sectionLog'),
+      task: document.getElementById('taskLog'),
+      contributor: document.getElementById('contributorLog'),
+      misc: document.getElementById('miscLog'),
+    };
+
+    function formatJSON(value) {
+      if (typeof value === 'string') return value;
+      try {
+        return JSON.stringify(value, null, 2);
+      } catch (err) {
+        return String(value);
+      }
+    }
+
+    function setTokens(access, refresh) {
+      if (access) state.accessToken = access;
+      if (refresh) state.refreshToken = refresh;
+      accessBox.textContent = state.accessToken || 'Not set';
+      refreshBox.textContent = state.refreshToken || 'Not set';
+    }
+
+    async function apiRequest(method, path, body) {
+      const base = document.getElementById('baseUrl').value.replace(/\/$/, '');
+      const proxy = document.getElementById('proxyUrl').value.trim().replace(/\/$/, '');
+      const url = `${proxy}${base}${path}`;
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (state.accessToken) {
+        headers['Authorization'] = `Bearer ${state.accessToken}`;
+      }
+
+      const options = { method, headers, mode: 'cors' };
+      if (body !== undefined && body !== null) {
+        options.body = JSON.stringify(body);
+      }
+      const res = await fetch(url, options);
+      let data;
+      const text = await res.text();
+      try {
+        data = text ? JSON.parse(text) : text;
+      } catch (err) {
+        data = text;
+      }
+      if (!res.ok) {
+        throw { status: res.status, statusText: res.statusText, data };
+      }
+      return data;
+    }
+
+    function handleForm(id, loggerKey, handler) {
+      const form = document.getElementById(id);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const entries = Object.fromEntries(formData.entries());
+        const logEl = loggers[loggerKey];
+        logEl.textContent = 'Loading...';
+        try {
+          const result = await handler(entries);
+          logEl.textContent = formatJSON(result);
+        } catch (err) {
+          logEl.textContent = formatJSON(err);
+        }
+      });
+    }
+
+    function parseJSONField(value) {
+      if (!value) return undefined;
+      try {
+        return JSON.parse(value);
+      } catch (err) {
+        return undefined;
+      }
+    }
+
+    const pages = Array.from(document.querySelectorAll('.page'));
+    const navButtons = Array.from(document.querySelectorAll('[data-target]'));
+
+    function showPage(page) {
+      const target = page || 'landing';
+      pages.forEach((p) => p.classList.toggle('active', p.dataset.page === target));
+      navButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.target === target));
+      if (location.hash.replace('#', '') !== target) {
+        history.replaceState({}, '', `#${target}`);
+      }
+    }
+
+    function syncPageFromHash() {
+      const hashPage = location.hash.replace('#', '') || 'landing';
+      showPage(hashPage);
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener('click', () => showPage(btn.dataset.target));
+    });
+
+    window.addEventListener('hashchange', syncPageFromHash);
+    syncPageFromHash();
+
+    // Authentication
+    handleForm('registerForm', 'auth', ({ userName, email, password }) => {
+      return apiRequest('POST', '/api/Authentication/Register', { userName, email, password });
+    });
+
+    handleForm('registerAdminForm', 'auth', ({ userName, email, password }) => {
+      return apiRequest('POST', '/api/Authentication/RegisterAdmin', { userName, email, password });
+    });
+
+    handleForm('loginForm', 'auth', async ({ userNameOrEmail, password }) => {
+      const data = await apiRequest('POST', '/api/Authentication/Login', { userNameOrEmail, password });
+      const { accessToken, refreshToken } = data;
+      setTokens(accessToken, refreshToken);
+      return data;
+    });
+
+    handleForm('refreshForm', 'auth', async ({ accessToken, refreshToken }) => {
+      const payload = {
+        accessToken: accessToken || state.accessToken,
+        refreshToken: refreshToken || state.refreshToken,
+      };
+      const data = await apiRequest('POST', '/api/Authentication/RefreshToken', payload);
+      const { accessToken: newAccess, refreshToken: newRefresh } = data;
+      setTokens(newAccess, newRefresh);
+      return data;
+    });
+
+    // Projects
+    handleForm('projectCreateForm', 'project', ({ name, description, colorThemeId, boards, contributors }) => {
+      return apiRequest('POST', '/api/Project', {
+        name,
+        description: description || null,
+        colorThemeId: colorThemeId ? Number(colorThemeId) : null,
+        boards: parseJSONField(boards),
+        contributors: parseJSONField(contributors),
+      });
+    });
+
+    handleForm('projectUpdateForm', 'project', ({ projectId, name, description, colorThemeId }) => {
+      return apiRequest('PUT', `/api/Project/${projectId}`, {
+        name,
+        description: description || null,
+        colorThemeId: colorThemeId ? Number(colorThemeId) : null,
+      });
+    });
+
+    handleForm('projectDeleteForm', 'project', ({ projectId }) => {
+      return apiRequest('DELETE', `/api/Project/${projectId}`);
+    });
+
+    handleForm('projectByIdForm', 'project', ({ projectId, userId }) => {
+      return apiRequest('GET', `/api/Project/ProjectById/${projectId}/User/${userId}`);
+    });
+
+    handleForm('projectByUserForm', 'project', () => apiRequest('GET', '/api/Project/GetProjectsByUser'));
+
+    // Boards
+    handleForm('boardListForm', 'board', ({ projectId }) => apiRequest('GET', `/api/Board/GetBoardsByProject/${projectId}`));
+
+    handleForm('boardByIdForm', 'board', ({ boardId, projectId }) => apiRequest('GET', `/api/Board/BoardById/${boardId}/Project/${projectId}`));
+
+    handleForm('boardCreateForm', 'board', ({ projectId, name, description, sections }) => {
+      return apiRequest('POST', `/api/Board/${projectId}`, {
+        name,
+        description: description || null,
+        sections: parseJSONField(sections),
+      });
+    });
+
+    handleForm('boardUpdateForm', 'board', ({ boardId, name, description }) => {
+      return apiRequest('PUT', `/api/Board/${boardId}`, { name, description: description || null });
+    });
+
+    handleForm('boardDeleteForm', 'board', ({ boardId }) => apiRequest('DELETE', `/api/Board/${boardId}`));
+
+    // Sections
+    handleForm('sectionListForm', 'section', ({ boardId }) => apiRequest('GET', `/api/Section/GetSectionsByBoard/${boardId}`));
+
+    handleForm('sectionByIdForm', 'section', ({ sectionId, boardId }) => apiRequest('GET', `/api/Section/SectionById/${sectionId}/Board/${boardId}`));
+
+    handleForm('sectionCreateForm', 'section', ({ boardId, name, order, tasks }) => {
+      return apiRequest('POST', `/api/Section/${boardId}`, {
+        name,
+        order: Number(order),
+        tasks: parseJSONField(tasks),
+      });
+    });
+
+    handleForm('sectionUpdateForm', 'section', ({ sectionId, name, order }) => {
+      return apiRequest('PUT', `/api/Section/${sectionId}`, { name, order: Number(order) });
+    });
+
+    handleForm('sectionDeleteForm', 'section', ({ sectionId }) => apiRequest('DELETE', `/api/Section/${sectionId}`));
+
+    // Tasks
+    const toIso = (value) => (value ? new Date(value).toISOString() : null);
+
+    handleForm('taskListForm', 'task', ({ sectionId }) => apiRequest('GET', `/api/Task/GetTasksBySection/${sectionId}`));
+
+    handleForm('taskByIdForm', 'task', ({ taskId, sectionId }) => apiRequest('GET', `/api/Task/TaskById/${taskId}/Section/${sectionId}`));
+
+    handleForm('taskCreateForm', 'task', ({ sectionId, name, description, isCompleted, order, createdDateTime, dueDateTime, priority, subTasks }) => {
+      return apiRequest('POST', `/api/Task/${sectionId}`, {
+        name,
+        description: description || null,
+        isCompleted: isCompleted === 'true',
+        order: Number(order),
+        createdDateTime: toIso(createdDateTime),
+        dueDateTime: toIso(dueDateTime),
+        priority: priority ? Number(priority) : null,
+        subTasks: parseJSONField(subTasks),
+      });
+    });
+
+    handleForm('taskCreateChildForm', 'task', ({ sectionId, parentTaskId, name, description, isCompleted, order, createdDateTime, dueDateTime, priority }) => {
+      return apiRequest('POST', `/api/Task/${sectionId}/ParentTask/${parentTaskId}`, {
+        name,
+        description: description || null,
+        isCompleted: isCompleted === 'true',
+        order: Number(order),
+        createdDateTime: toIso(createdDateTime),
+        dueDateTime: toIso(dueDateTime),
+        priority: priority ? Number(priority) : null,
+      });
+    });
+
+    handleForm('taskUpdateForm', 'task', ({ taskId, name, description, isCompleted, order, createdDateTime, dueDateTime, priority, sectionId }) => {
+      return apiRequest('PUT', `/api/Task/${taskId}`, {
+        name,
+        description: description || null,
+        isCompleted: isCompleted === 'true',
+        order: Number(order),
+        createdDateTime: toIso(createdDateTime),
+        dueDateTime: toIso(dueDateTime),
+        priority: priority ? Number(priority) : null,
+        sectionId: sectionId || undefined,
+      });
+    });
+
+    handleForm('taskDeleteForm', 'task', ({ taskId }) => apiRequest('DELETE', `/api/Task/${taskId}`));
+
+    // Contributors
+    handleForm('contributorsByProjectForm', 'contributor', ({ projectId }) => apiRequest('GET', `/api/Contributor/GetContributorsByProject/${projectId}`));
+
+    handleForm('contributionsByUserForm', 'contributor', () => apiRequest('GET', '/api/Contributor/GetContributionsByUser'));
+
+    handleForm('contributionByUserProjectForm', 'contributor', ({ userId, projectId }) => apiRequest('GET', `/api/Contributor/GetContribution/User/${userId}/Project/${projectId}`));
+
+    handleForm('contributorCreateForm', 'contributor', ({ userId, projectId, hasWritePermission }) => {
+      return apiRequest('POST', `/api/Contributor/User/${userId}/Project/${projectId}`, {
+        hasWritePermission: hasWritePermission === 'true',
+      });
+    });
+
+    handleForm('contributorUpdateForm', 'contributor', ({ userId, projectId, hasWritePermission }) => {
+      return apiRequest('PUT', `/api/Contributor/User/${userId}/Project/${projectId}`, {
+        hasWritePermission: hasWritePermission === 'true',
+      });
+    });
+
+    handleForm('contributorDeleteForm', 'contributor', ({ userId, projectId }) => apiRequest('DELETE', `/api/Contributor/User/${userId}/Project/${projectId}`));
+
+    // Misc
+    handleForm('whoForm', 'misc', () => apiRequest('GET', '/api/WhoAreYou'));
+  </script>
+</body>
+</html>
